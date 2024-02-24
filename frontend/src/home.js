@@ -1,8 +1,8 @@
-//Home Component ./frontend/src/home.js
 import React from 'react';
 import { Card } from 'react-bootstrap';
 // Import the image
 import bankImage from './assets/bank.png';
+import LoginButton from './components/LoginButton.js'; // Make sure the path is correct
 
 function Home() {
   return (
@@ -15,6 +15,10 @@ function Home() {
         </Card.Text>
         {/* Use the imported image as a src */}
         <img src={bankImage} className="img-fluid" alt="Bad Bank Logo" />
+        {/* Render the LoginButton component */}
+        <div className="mt-3">
+          <LoginButton />
+        </div>
       </Card.Body>
     </Card>
   );

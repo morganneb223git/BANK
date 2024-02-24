@@ -2,8 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import UserContext from './contexts/UserContext'; // Ensure this path is correct
-import NavBar from './navbar'; // Ensure paths for your components are correct
+import { Auth0Provider } from '@auth0/auth0-react';
+import UserContext from './contexts/UserContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import NavBar from './navbar';
 import Home from './home';
 import CreateAccount from './createaccount';
 import Login from './login';
@@ -14,7 +16,7 @@ import AllData from './alldata';
 
 function App() {
   return (
-    <HashRouter>
+    <>
       <NavBar />
       <UserContext.Provider value={{users:[{name:'abel',email:'abel@mit.edu',password:'secret',balance:100}]}}>
         <div className="container" style={{padding: "20px"}}>
@@ -22,21 +24,29 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/createaccount" element={<CreateAccount />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/deposit" element={<Deposit />} />
-            <Route path="/withdraw" element={<Withdraw />} />
-            {/* <Route path="/transactions" element={<Transactions />} /> */}
-            <Route path="/balance" element={<Balance />} />
-            <Route path="/alldata" element={<AllData />} />
+            <Route path="/deposit" element={<ProtectedRoute component={Deposit} />} />
+            <Route path="/withdraw" element={<ProtectedRoute component={Withdraw} />} />
+            <Route path="/balance" element={<ProtectedRoute component={Balance} />} />
+            <Route path="/alldata" element={<ProtectedRoute component={AllData} />} />
           </Routes>
         </div>
       </UserContext.Provider>
-    </HashRouter>
+    </>
   );
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <Auth0Provider
+      domain={process.env.REACT_APP_AUTH0_DOMAIN}
+      clientId={process.env.REACT_APP_AUTH0_CLIENT_ID}
+      authorizationParams={{
+        redirect_uri: window.location.origin
+      }}>
+      <HashRouter>
+        <App />
+      </HashRouter>
+    </Auth0Provider>
   </React.StrictMode>
 );

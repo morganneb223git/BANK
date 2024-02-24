@@ -1,6 +1,10 @@
 //Auth0 Service File ./frontend/src/auth/authService.js
 
-import createAuth0Client from '@auth0/auth0-spa-js';
+/*
+
+*******WILL KEEP FOR FUTURE -- NOT UTILIZING NOW******
+
+import { createAuth0Client } from '@auth0/auth0-spa-js';
 
 class AuthService {
   auth0Client = null;
@@ -9,7 +13,7 @@ class AuthService {
     this.configureClient();
   }
 
-  fetchAuthConfig = () => fetch("/auth_config.json");
+  fetchAuthConfig = () => fetch("../config/auth_config.js");
 
   configureClient = async () => {
     const response = await this.fetchAuthConfig();
@@ -43,3 +47,5 @@ class AuthService {
 }
 
 export const authService = new AuthService();
+
+*/
