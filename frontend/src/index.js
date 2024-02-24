@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import { Auth0Provider } from '@auth0/auth0-react';
+import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import UserContext from './contexts/UserContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import NavBar from './navbar';
@@ -15,6 +15,14 @@ import Balance from './balance';
 import AllData from './alldata';
 
 function App() {
+  const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      loginWithRedirect();
+    }
+  }, [isLoading, isAuthenticated, loginWithRedirect]);
+
   return (
     <>
       <NavBar />

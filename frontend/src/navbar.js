@@ -1,9 +1,12 @@
 ///NavBar Component ./frontend/src/navbar.js
 import React from 'react';
-import { Container, Navbar, Nav } from 'react-bootstrap';
+import { Container, Navbar, Nav, Button } from 'react-bootstrap'; // Ensure Button is imported
 import { LinkContainer } from 'react-router-bootstrap';
+import { useAuth0 } from '@auth0/auth0-react';
 
 function NavBar() {
+  const { isAuthenticated, logout } = useAuth0(); // Destructure logout method
+
   return (
     <Navbar bg="light" expand="lg">
       <Container>
@@ -13,7 +16,7 @@ function NavBar() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <LinkContainer to="/CreateAccount/">
+            <LinkContainer to="/createaccount/">
               <Nav.Link>Create Account</Nav.Link>
             </LinkContainer>
             <LinkContainer to="/login/">
@@ -31,7 +34,13 @@ function NavBar() {
             <LinkContainer to="/alldata/">
               <Nav.Link>All Data</Nav.Link>
             </LinkContainer>
-          </Nav>
+            </Nav>
+          {/* Conditionally render Logout button if user is authenticated */}
+          {isAuthenticated && (
+            <Button onClick={() => logout({ returnTo: window.location.origin })} variant="outline-danger">
+              Logout
+            </Button>
+          )}
         </Navbar.Collapse>
       </Container>
     </Navbar>
