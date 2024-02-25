@@ -1,6 +1,6 @@
 /// Withdraw Component ./frontend/src/withdraw.js
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Form, Button, Alert } from 'react-bootstrap';
 
 function Withdraw() {
@@ -38,16 +38,51 @@ function WithdrawMsg({ setShow, setStatus }) {
 }
 
 function WithdrawForm({ setShow, setStatus, setVariant }) {
-  const [email, setEmail] = React.useState('');
-  const [amount, setAmount] = React.useState('');
+  const [email, setEmail] = useState('');
+  const [amount, setAmount] = useState('');
+  const [balance, setBalance] = useState(0); // State to store the user's balance
+  const [loadingBalance, setLoadingBalance] = useState(true); // State to track loading of the balance
+
+  // Fetch the user's balance when the email changes
+  useEffect(() => {
+    if (email) {
+      setLoadingBalance(true);
+      fetch(`/account/balance/${email}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      .then(response => response.json())
+      .then(data => {
+        setBalance(data.balance); // Assuming the API returns an object with a balance property
+        setLoadingBalance(false);
+      })
+      .catch(error => {
+        console.error('Error fetching balance:', error);
+        setLoadingBalance(false);
+      });
+    }
+  }, [email]);
 
   function handle() {
+    const withdrawalAmount = parseFloat(amount);
+    if (isNaN(withdrawalAmount) || withdrawalAmount <= 0) {
+      setStatus('Amount must be a positive number.');
+      setVariant('danger');
+      return;
+    }
+
+    if (withdrawalAmount > balance) {
+      setStatus('Withdrawal amount exceeds current balance.');
+      setVariant('danger');
+      return;
+    }
+
     fetch('/account/withdraw', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: email,
-        amount: Math.abs(parseFloat(amount)) // Ensure the amount is positive for withdrawals
+        amount: withdrawalAmount,
       })
     })
     .then(response => {
@@ -80,7 +115,6 @@ function WithdrawForm({ setShow, setStatus, setVariant }) {
           onChange={e => setEmail(e.currentTarget.value)}
         />
       </Form.Group>
-
       <Form.Group className="mb-3">
         <Form.Label>Amount</Form.Label>
         <Form.Control
@@ -88,10 +122,10 @@ function WithdrawForm({ setShow, setStatus, setVariant }) {
           placeholder="Enter amount"
           value={amount}
           onChange={e => setAmount(e.currentTarget.value)}
+          disabled={loadingBalance} // Disable input while loading balance
         />
       </Form.Group>
-
-      <Button variant="primary" onClick={handle}>Withdraw</Button>
+      {loadingBalance ? <p>Loading balance...</p> : <Button variant="primary" onClick={handle}>Withdraw</Button>}
     </Form>
   );
 }

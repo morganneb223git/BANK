@@ -34,8 +34,32 @@ function CreateForm(props) {
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [errors, setErrors] = React.useState({}); // State to keep track of form errors
+
+  // Function to validate form fields
+  const validateForm = () => {
+    let tempErrors = {};
+    if (!name) tempErrors.name = "Name is required";
+    if (!email) {
+      tempErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      tempErrors.email = "Email is invalid";
+    } else if (!email.endsWith('.com')) { // Check if email ends with .com
+      tempErrors.email = "Email must end with .com";
+    }
+    if (!password) {
+      tempErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      tempErrors.password = "Password must be at least 6 characters long";
+    }
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0; // Returns true if no errors
+  };
 
   function handle() {
+    // Validate form before submitting
+    if (!validateForm()) return;
+
     fetch('/account/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -62,31 +86,46 @@ function CreateForm(props) {
 
   return (
     <Form>
+      {/* Name field */}
       <Form.Group className="mb-3">
         <Form.Label>Name</Form.Label>
         <Form.Control 
           type="text" 
           placeholder="Enter name" 
           value={name} 
+          isInvalid={!!errors.name} // Show invalid feedback if name error exists
           onChange={e => setName(e.currentTarget.value)} />
+        <Form.Control.Feedback type="invalid">
+          {errors.name}
+        </Form.Control.Feedback>
       </Form.Group>
 
+      {/* Email field */}
       <Form.Group className="mb-3">
         <Form.Label>Email address</Form.Label>
         <Form.Control 
           type="email" 
           placeholder="Enter email" 
           value={email} 
+          isInvalid={!!errors.email} // Show invalid feedback if email error exists
           onChange={e => setEmail(e.currentTarget.value)} />
+        <Form.Control.Feedback type="invalid">
+          {errors.email}
+        </Form.Control.Feedback>
       </Form.Group>
 
+      {/* Password field */}
       <Form.Group className="mb-3">
         <Form.Label>Password</Form.Label>
         <Form.Control 
           type="password" 
           placeholder="Enter password" 
           value={password} 
+          isInvalid={!!errors.password} // Show invalid feedback if password error exists
           onChange={e => setPassword(e.currentTarget.value)} />
+        <Form.Control.Feedback type="invalid">
+          {errors.password}
+        </Form.Control.Feedback>
       </Form.Group>
 
       <Button variant="primary" onClick={handle}>Create Account</Button>
